@@ -1,0 +1,24 @@
+
+
+<div class="container" *ngFor="let user of users">
+  <div class="row">
+      <div class="col">
+          <h4>{{user.userName}}</h4>
+      </div>
+  </div>
+  <div class="row">
+    <div class="col-md-18" *ngFor="let photo of user.photos">
+      <img src="{{photo.url}}" class="img-thumbnail p-1" alt="">
+      <div class="text-center">
+        <button type="button" class="btn btn-sm btn-success" 
+          (click)="approvePhoto(user, photo)">Approve</button>
+        <button type="button" class="btn btn-sm btn-danger" 
+          (click)="rejectPhoto(user, photo)">Reject</button>
+      </div>
+      </div>
+  </div>
+  <div class="row">
+      <div class="col">
+          &nbsp;
+      </div>
+  </div></div>

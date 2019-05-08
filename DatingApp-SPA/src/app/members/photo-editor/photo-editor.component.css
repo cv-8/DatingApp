@@ -4,10 +4,34 @@ img.img-thumbnail {
     margin-bottom: 2px;
 }
 
+img.img-unapproved {
+    opacity: 0.5;
+    filter: alpha(opacity=50);
+}
+
 .nv-file-over {
     border: dotted 3px red;
 }
 
 input[type=file] {
     color: transparent;
+}
+
+.container {
+    position: relative;
+}
+
+.text-block {
+    position: absolute;
+    bottom: 30%;
+    left: 35%;
+    right: 0;
+    margin-right: auto;
+    margin-left: auto;
+    color: red;
+}
+
+.btn-nowrap {
+    display: flex;
+    margin-left: 10px;
 }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -14,7 +15,6 @@ using Microsoft.Extensions.Options;
 
 namespace DatingApp.API.Controllers
 {
-    [Authorize]
     [Route("api/users/{userId}/photos")]
     [ApiController]
     public class PhotosController : ControllerBase
@@ -48,6 +48,18 @@ namespace DatingApp.API.Controllers
             var photo = _mapper.Map<PhotoForReturnDto>(photoFromRepo);
 
             return Ok(photo);
+        }
+
+        [Route("/api/photos")]
+        [HttpGet]
+        public async Task<IActionResult> GetPhotos()
+        {
+
+            var photosFromRepo = await _repo.GetPhotos();
+
+            var photosToReturn = _mapper.Map<IEnumerable<PhotoForReturnDto>>(photosFromRepo);
+
+            return Ok(photosToReturn);
         }
 
         [HttpPost]
@@ -125,13 +137,30 @@ namespace DatingApp.API.Controllers
             return BadRequest("Could not set photo to main");
         }
 
+        [Authorize(Policy = "ModeratePhotoRole")]
+        [HttpPost("{id}/setApproved")]
+        public async Task<IActionResult> SetApproved(int userId, int id)
+        {
+            var photFromRepo = await _repo.GetPhoto(id);
+
+            if (photFromRepo.IsApproved)
+                return BadRequest("This is already approved");
+
+            photFromRepo.IsApproved = true;
+
+            if (await _repo.SaveAll())
+                return NoContent();
+
+            return BadRequest("Could not set photo to approved");
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePhoto(int userId, int id)
         {
             if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
                 return Unauthorized();
 
-            var user = await _repo.GetUser(userId);
+            var user = await _repo.GetUserAllPhotos(userId);
 
             if (!user.Photos.Any(p => p.Id == id))
                 return Unauthorized();

@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace DatingApp.API.Controllers
 {
     [ServiceFilter(typeof(LogUserActivity))]
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
@@ -53,12 +52,24 @@ namespace DatingApp.API.Controllers
         [HttpGet("{id}", Name = "GetUser")]
         public async Task<IActionResult> GetUser(int id)
         {
-            var user = await _repo.GetUser(id);
+            var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
 
-            var userToReturn = _mapper.Map<UserForDetailedDto>(user);
+            var userToReturn = new UserForDetailedDto();
+
+            if (id == currentUserId)
+            {
+                var user = await _repo.GetUserAllPhotos(id);
+                userToReturn = _mapper.Map<UserForDetailedDto>(user);
+            }
+            else
+            {
+                var user = await _repo.GetUser(id);
+                userToReturn = _mapper.Map<UserForDetailedDto>(user);
+            }
 
             return Ok(userToReturn);
         }
+
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(int id, UserForUpdateDto userForUpdateDto)
